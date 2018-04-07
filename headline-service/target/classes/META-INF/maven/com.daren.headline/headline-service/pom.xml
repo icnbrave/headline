@@ -87,7 +87,6 @@
 				<includes>
 					<include>messages/*</include>
 					<include>**/*.xml</include>
-					<include>security/*</include>
 				</includes>
 			</resource>
 			<resource>
