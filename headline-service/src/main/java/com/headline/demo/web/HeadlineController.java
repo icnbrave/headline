@@ -1,6 +1,8 @@
 
 package com.headline.demo.web;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,8 +88,10 @@ public class HeadlineController extends HeadlineBaseWebController {
       HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName, ErrorCodeConstant.HEADLINE_FILE_UPLOAD_FAIL);
     }
     ResponseDto responseDto = this.getDefaultResponseDto();
+    List<Headline> headlines = headlineServiceImpl.uploadHeadlineFileAndReturnSplitedHeadlines(file);
+    responseDto.setData(headlines);
+    responseDto.setMessage("文件上传并解析成功");
     return responseDto;
-    
   }
 
 }

@@ -17,6 +17,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.headline.demo.constant.ErrorCodeConstant;
 
 public class ReadExcelUtils {
   private Logger logger = LoggerFactory.getLogger(ReadExcelUtils.class);
@@ -42,6 +45,28 @@ public class ReadExcelUtils {
       logger.error("FileNotFoundException", e);
     } catch (IOException e) {
       logger.error("IOException", e);
+    }
+  }
+
+  public ReadExcelUtils(MultipartFile multipartFile) {
+    String methodName = "ReadExcelUtils";
+    if (multipartFile == null) {
+      return;
+    }
+    String fileName = multipartFile.getOriginalFilename();
+    String ext = fileName.substring(fileName.lastIndexOf("."));
+    try {
+      InputStream is = multipartFile.getInputStream();
+      if (".xls".equals(ext)) {
+        wb = new HSSFWorkbook(is);
+      } else if (".xlsx".equals(ext)) {
+        wb = new XSSFWorkbook(is);
+      } else {
+        wb = null;
+      }
+    } catch (Exception e) {
+      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName,
+          ErrorCodeConstant.HEADLINE_FILE_UPLOAD_FAIL);
     }
   }
 
