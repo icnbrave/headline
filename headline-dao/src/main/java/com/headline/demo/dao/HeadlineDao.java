@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.eg.egsc.framework.dao.base.BaseDao;
 import com.eg.egsc.framework.paging.PageUtils;
 import com.headline.demo.dao.common.DarenDaoUtil;
+import com.headline.demo.dao.common.HeadlineDaoConstant;
 import com.headline.demo.extmapper.HeadlineExtMapper;
 import com.headline.demo.mapper.HeadlineMapper;
 import com.headline.demo.mapper.entity.Headline;
@@ -38,7 +39,8 @@ public class HeadlineDao extends BaseDao<HeadlineMapper, HeadlineExtMapper, Head
   }
 
   @Override
-  public List<Headline> queryOnePageDataByCondition(Integer currentPage, Integer pageSize, HeadlineCriteria modelCrt) {
+  public List<Headline> queryOnePageDataByCondition(Integer currentPage, Integer pageSize,
+      HeadlineCriteria modelCrt) {
     RowBounds rowBounds =
         new RowBounds(PageUtils.getOffset(currentPage, pageSize), PageUtils.getLimit(pageSize));
     return this.getMapper().selectByExampleWithRowbounds(modelCrt, rowBounds);
@@ -76,6 +78,10 @@ public class HeadlineDao extends BaseDao<HeadlineMapper, HeadlineExtMapper, Head
   public int insertHeadine(Headline record) {
     String methodName = "selectByNameOrCode";
     DarenDaoUtil.printBeginLog(LOGGER, this.getClass().getName(), methodName);
+    if (record.getHeadlinePk() != null) {
+      record.setHeadlinePk(null);
+    }
+    record.setSelectFlag(HeadlineDaoConstant.HEADLINE_SELECT_FLAG_INIT);
     int res = this.getMapper().insert(record);
     DarenDaoUtil.printEndLog(LOGGER, this.getClass().getName(), methodName);
     return res;
@@ -95,7 +101,7 @@ public class HeadlineDao extends BaseDao<HeadlineMapper, HeadlineExtMapper, Head
       RowBounds rowBounds) {
     String methodName = "countByExample";
     DarenDaoUtil.printBeginLog(LOGGER, this.getClass().getName(), methodName);
-     List<Headline> res = this.getMapper().selectByExampleWithRowbounds(example, rowBounds);
+    List<Headline> res = this.getMapper().selectByExampleWithRowbounds(example, rowBounds);
     DarenDaoUtil.printEndLog(LOGGER, this.getClass().getName(), methodName);
     return res;
   }
@@ -109,5 +115,12 @@ public class HeadlineDao extends BaseDao<HeadlineMapper, HeadlineExtMapper, Head
     return (int) res;
   }
 
+  @Override
+  public List<Headline> getAllOriginHeadlines() {
+    HeadlineCriteria criteria = new HeadlineCriteria();
+    criteria.createCriteria().andDeleteFlagEqualTo(HeadlineDaoConstant.HEADLINE_DELETE_FLAG_FALSE)
+        .andFlagEqualTo(HeadlineDaoConstant.HEADLINE_FLAG_INIT);
+    return this.selectByExample(criteria);
+  }
 
 }

@@ -14,5 +14,6 @@ public class ErrorCodeConstant extends ErrorCodeDaoConstant {
   public static final String HEADLINE_SERVICE_PARAM_BLANK = "headline.service.param.blank";
   public static final String HEADLINE_FILE_UPLOAD_FAIL = "headline.file.upload.fail";
   public static final String HEADLINE_FILE_READ_FAIL = "headline.file.read.fail";
+  public static final String HEADLINE_PK_NOT_SELECTED = "headline.constructed.pk.notselected";
   
 }

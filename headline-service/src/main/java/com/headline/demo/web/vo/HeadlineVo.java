@@ -17,6 +17,8 @@ public class HeadlineVo {
   private String title;
   
   private String author;
+  
+  private String seperator;
 
   public Integer getHeadlinePk() {
     return headlinePk;
@@ -80,6 +82,14 @@ public class HeadlineVo {
 
   public void setAuthor(String author) {
     this.author = author;
+  }
+
+  public String getSeperator() {
+    return seperator;
+  }
+
+  public void setSeperator(String seperator) {
+    this.seperator = seperator;
   }
   
 }

@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.headline.demo.mapper.entity.Headline;
 import com.headline.demo.mapper.entity.HeadlineCriteria;
+import com.headline.demo.web.vo.HeadlineContrVo;
 import com.headline.demo.web.vo.HeadlinePageVo;
 import com.headline.demo.web.vo.HeadlineVo;
 import com.headline.demo.web.vo.ItemSearchVo;
@@ -31,5 +32,9 @@ public interface HeadlineService {
   int updateByExample(Headline record, HeadlineCriteria example);
   
   List<Headline> uploadHeadlineFileAndReturnSplitedHeadlines(MultipartFile file);
+  
+  List<Headline> splitHeadlinesAndReturnWithFirstPage(String sep, Integer pageSize);
+  
+  List<Headline> constructHeadlinesAndReturn(HeadlineContrVo contrVo);
 
 }

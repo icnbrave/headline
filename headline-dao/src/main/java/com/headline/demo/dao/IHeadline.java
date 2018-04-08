@@ -27,4 +27,6 @@ public interface IHeadline {
   public List<Headline> selectByExampleWithRowbounds(HeadlineCriteria example, RowBounds rowBounds);
 
   public int updateByPrimaryKey(Headline record);
+  
+  public List<Headline> getAllOriginHeadlines();
 }

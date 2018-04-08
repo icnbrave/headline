@@ -12,6 +12,7 @@
     <result column="flag" jdbcType="SMALLINT" property="flag" />
     <result column="author" jdbcType="VARCHAR" property="author" />
     <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="seperator" jdbcType="VARCHAR" property="seperator" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,7 +74,7 @@
   </sql>
   <sql id="Base_Column_List">
     headline_pk, name, description, delete_flag, select_flag, create_time, update_time, 
-    flag, author, title
+    flag, author, title, seperator
   </sql>
   <select id="selectByExample" parameterType="com.headline.demo.mapper.entity.HeadlineCriteria" resultMap="BaseResultMap">
     select
@@ -109,11 +110,11 @@
     insert into headline (headline_pk, name, description, 
       delete_flag, select_flag, create_time, 
       update_time, flag, author, 
-      title)
+      title, seperator)
     values (#{headlinePk,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{deleteFlag,jdbcType=SMALLINT}, #{selectFlag,jdbcType=SMALLINT}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{flag,jdbcType=SMALLINT}, #{author,jdbcType=VARCHAR}, 
-      #{title,jdbcType=VARCHAR})
+      #{title,jdbcType=VARCHAR}, #{seperator,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.headline.demo.mapper.entity.Headline">
     insert into headline
@@ -148,6 +149,9 @@
       <if test="title != null">
         title,
       </if>
+      <if test="seperator != null">
+        seperator,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="headlinePk != null">
@@ -179,6 +183,9 @@
       </if>
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="seperator != null">
+        #{seperator,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +228,9 @@
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
       </if>
+      <if test="record.seperator != null">
+        seperator = #{record.seperator,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +247,8 @@
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       flag = #{record.flag,jdbcType=SMALLINT},
       author = #{record.author,jdbcType=VARCHAR},
-      title = #{record.title,jdbcType=VARCHAR}
+      title = #{record.title,jdbcType=VARCHAR},
+      seperator = #{record.seperator,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +283,9 @@
       <if test="title != null">
         title = #{title,jdbcType=VARCHAR},
       </if>
+      <if test="seperator != null">
+        seperator = #{seperator,jdbcType=VARCHAR},
+      </if>
     </set>
     where headline_pk = #{headlinePk,jdbcType=INTEGER}
   </update>
@@ -285,7 +299,8 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       flag = #{flag,jdbcType=SMALLINT},
       author = #{author,jdbcType=VARCHAR},
-      title = #{title,jdbcType=VARCHAR}
+      title = #{title,jdbcType=VARCHAR},
+      seperator = #{seperator,jdbcType=VARCHAR}
     where headline_pk = #{headlinePk,jdbcType=INTEGER}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.headline.demo.mapper.entity.HeadlineCriteria" resultMap="BaseResultMap">

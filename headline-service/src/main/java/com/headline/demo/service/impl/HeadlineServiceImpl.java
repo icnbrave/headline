@@ -5,7 +5,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import com.headline.demo.mapper.entity.HeadlineCriteria.Criteria;
 import com.headline.demo.service.HeadlineService;
 import com.headline.demo.util.HeadlineBaseUtil;
 import com.headline.demo.util.ReadExcelUtils;
+import com.headline.demo.web.vo.HeadlineContrVo;
 import com.headline.demo.web.vo.HeadlinePageVo;
 import com.headline.demo.web.vo.HeadlineVo;
 import com.headline.demo.web.vo.ItemSearchVo;
@@ -131,6 +135,9 @@ public class HeadlineServiceImpl implements HeadlineService {
     if (headlineVo.getFlag() != null) {
       criteria.andFlagEqualTo(headlineVo.getFlag());
     }
+    if (headlineVo.getSeperator() != null) {
+      criteria.andSeperatorEqualTo(headlineVo.getSeperator());
+    }
     if (headlineVo.getDescription() != null) {
       String[] tokens = headlineVo.getDescription().trim().split(" ");
       for (String keyword : tokens) {
@@ -194,7 +201,7 @@ public class HeadlineServiceImpl implements HeadlineService {
               && !desc.endsWith(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL)) {
             desc.concat(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL);
           }
-          desc = desc.concat((String) map2.get(j)).concat("\n");
+          desc = desc.concat((String) map2.get(j));
 
           if (j == map2.size() - 1) {
             tmpHeadline.setDescription(desc);
@@ -205,7 +212,7 @@ public class HeadlineServiceImpl implements HeadlineService {
 
       if (!checkExist(tmpHeadline)) {
         headlineDao.insertHeadine(tmpHeadline);
-        
+
         Headline headline = new Headline();
         BeanUtils.copyProperties(headline, tmpHeadline);
         headlines.add(headline);
@@ -228,6 +235,142 @@ public class HeadlineServiceImpl implements HeadlineService {
       return true;
     }
     return false;
+  }
+
+  @Override
+  public List<Headline> splitHeadlinesAndReturnWithFirstPage(String sep, Integer pageSize) {
+    String methodName = "splitHeadlinesAndReturnWithFirstPage";
+    HeadlineBaseUtil.printBeginLog(logger, this.getClass().getName(), methodName);
+
+    // 1. Get all original headlines
+    List<Headline> headlines = headlineDao.getAllOriginHeadlines();
+
+    List<Headline> result = splitHeadlinesAndCreateNewOnes(sep, headlines);
+
+    HeadlineBaseUtil.printEndLog(logger, this.getClass().getName(), methodName);
+    Integer maxIndex = result.size() > pageSize ? pageSize : result.size();
+    return result.subList(0, maxIndex);
+  }
+
+  private List<Headline> splitHeadlinesAndCreateNewOnes(String sep, List<Headline> headlines) {
+    List<Headline> newHeadlines = new ArrayList<>();
+    if (headlines == null || headlines.size() < 1) {
+      return newHeadlines;
+    }
+    Headline record = new Headline();
+    for (Headline headline : headlines) {
+      String desc = headline.getDescription();
+
+      BeanUtils.copyProperties(record, headline);
+      record.setFlag(HeadlineConstant.HEADLINE_FLAG_SPLITED);
+      record.setSeperator(sep);
+
+      if (desc != null && StringUtils.isNotBlank(desc)) {
+        String[] tokens = desc.split(sep);
+
+        for (int i = 0; i < tokens.length; i++) {
+          record.setDescription(tokens[i]);
+          headlineDao.insertHeadine(record);
+
+          Headline tmp = new Headline();
+          BeanUtils.copyProperties(tmp, record);
+          newHeadlines.add(tmp);
+        }
+      } else {
+        headlineDao.insertHeadine(record);
+
+        Headline tmp = new Headline();
+        BeanUtils.copyProperties(tmp, record);
+        newHeadlines.add(tmp);
+      }
+
+    }
+
+    return newHeadlines;
+  }
+
+  @Override
+  public List<Headline> constructHeadlinesAndReturn(HeadlineContrVo contrVo) {
+    String methodName = "constructHeadlinesAndReturn";
+    List<Headline> headlinesContructed = new ArrayList<>();
+
+    if (contrVo == null) {
+      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName,
+          ErrorCodeConstant.HEADLINE_SERVICE_PARAM_BLANK);
+    }
+
+
+    while (true) {
+      List<Integer> randomPks =
+          this.randomHeadlinePks(contrVo.getHeadlinePks(), contrVo.getNumber());
+      if (CollectionUtils.isEmpty(randomPks)) {
+        break;
+      }
+      
+      Headline ret = constructOneHeadlineWithSpecPks(randomPks);
+      if (ret != null) {
+        headlinesContructed.add(ret);
+      }
+    }
+
+    return headlinesContructed;
+  }
+
+  private List<Integer> randomHeadlinePks(List<Integer> headlinePks, Integer indexCount) {
+    List<Integer> randomPks = new ArrayList<>();
+    if (headlinePks == null) {
+      return headlinePks;
+    }
+    if (headlinePks.size() <= indexCount) {
+      randomPks.addAll(headlinePks);
+      headlinePks.clear();
+      return randomPks;
+    }
+
+    Random random = new Random();
+    for (int i = 0; i < indexCount; i++) {
+      int index = random.nextInt(headlinePks.size() - 1);
+      randomPks.add(headlinePks.get(index));
+      headlinePks.remove(index);
+    }
+    return randomPks;
+  }
+  
+  private Headline constructOneHeadlineWithSpecPks(List<Integer> randomPks) {
+    if (randomPks == null) {
+      return null;
+    }
+    
+    String desc = "";
+    for(Integer pk : randomPks) {
+      Headline result = headlineDao.selectByPrimaryKey(pk);
+      if (result == null) {
+        continue;
+      }
+      desc = desc.concat(result.getDescription());
+      if (!desc.endsWith(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL)) {
+        desc = desc.concat(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL);
+      }
+      
+      result.setSelectFlag(HeadlineConstant.HEADLINE_SELECT_FLAG_SELECTED);
+      result.setUpdateTime(Calendar.getInstance().getTime());
+      headlineDao.updateByPrimaryKey(result);
+    }
+    
+    if (desc.length() == 0) {
+      return null;
+    }
+    
+    Headline res = new Headline();
+    res.setTitle(HeadlineConstant.HEADLINE_MOCK_TITLE);
+    res.setAuthor(HeadlineConstant.HEADLINE_MOCK_AUTHOR);
+    res.setDescription(desc);
+    res.setDeleteFlag(HeadlineConstant.HEADLINE_DELETE_FLAG_FALSE);
+    res.setFlag(HeadlineConstant.HEADLINE_FLAG_CONSTRUCTED);
+    res.setUpdateTime(Calendar.getInstance().getTime());
+    res.setCreateTime(Calendar.getInstance().getTime());
+    headlineDao.insertHeadine(res);
+    return res;
   }
 
 }

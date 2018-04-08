@@ -3,6 +3,7 @@ package com.headline.demo.web;
 
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,11 @@ import com.eg.egsc.common.component.utils.BeanUtils;
 import com.eg.egsc.common.component.utils.JsonUtil;
 import com.eg.egsc.framework.client.dto.ResponseDto;
 import com.headline.demo.constant.ErrorCodeConstant;
+import com.headline.demo.constant.HeadlineConstant;
 import com.headline.demo.mapper.entity.Headline;
 import com.headline.demo.service.HeadlineService;
 import com.headline.demo.util.HeadlineBaseUtil;
+import com.headline.demo.web.vo.HeadlineContrVo;
 import com.headline.demo.web.vo.HeadlinePageVo;
 import com.headline.demo.web.vo.HeadlineVo;
 import com.headline.demo.web.vo.ItemSearchVo;
@@ -71,26 +74,60 @@ public class HeadlineController extends HeadlineBaseWebController {
         .append(JsonUtil.toJsonString(itemSearchVo)).toString());
     ResponseDto res = this.getDefaultResponseDto();
     if (itemSearchVo == null) {
-      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName, ErrorCodeConstant.HEADLINE_QUERY_KEYWORDS_NOTBLANK);
+      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName,
+          ErrorCodeConstant.HEADLINE_QUERY_KEYWORDS_NOTBLANK);
       return res;
     }
-    
+
     HeadlinePageVo ret = headlineServiceImpl.queryOnePageDataByCondition(itemSearchVo);
     res.setData(ret);
     return res;
   }
-  
+
   @ApiOperation("文件上传与解析")
-  @RequestMapping(value="/upload", method=RequestMethod.POST)
+  @RequestMapping(value = "/upload", method = RequestMethod.POST)
   public ResponseDto uploadFileAndExtractHeadlineMessage(@RequestBody MultipartFile file) {
     String methodName = "uploadFileAndExtractHeadlineMessage";
     if (file == null) {
-      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName, ErrorCodeConstant.HEADLINE_FILE_UPLOAD_FAIL);
+      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName,
+          ErrorCodeConstant.HEADLINE_FILE_UPLOAD_FAIL);
     }
     ResponseDto responseDto = this.getDefaultResponseDto();
-    List<Headline> headlines = headlineServiceImpl.uploadHeadlineFileAndReturnSplitedHeadlines(file);
+    List<Headline> headlines =
+        headlineServiceImpl.uploadHeadlineFileAndReturnSplitedHeadlines(file);
     responseDto.setData(headlines);
     responseDto.setMessage("文件上传并解析成功");
+    return responseDto;
+  }
+
+  @ApiOperation("切割头条，并返回切割结果")
+  @RequestMapping(value = "/split", method = RequestMethod.POST)
+  public ResponseDto splitHeadlinesAndReturn(@RequestBody String seporator, Integer pageSize) {
+    if (seporator == null) {
+      seporator = HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL;
+    }
+
+    ResponseDto responseDto = this.getDefaultResponseDto();
+
+    List<Headline> result =
+        headlineServiceImpl.splitHeadlinesAndReturnWithFirstPage(seporator, pageSize);
+    responseDto.setData(result);
+    return responseDto;
+  }
+
+  @ApiOperation("文案随机组装")
+  @RequestMapping(value = "/construct", method = RequestMethod.POST)
+  public ResponseDto constructHeadlinesAndReturnNewAndContructedHealdines(
+      @RequestBody HeadlineContrVo reqVo) {
+    String methodName = "constructHeadlinesAndReturnNewAndContructedHealdines";
+    ResponseDto responseDto = this.getDefaultResponseDto();
+
+    if (reqVo.getHeadlinePks() == null || CollectionUtils.isEmpty(reqVo.getHeadlinePks())) {
+      HeadlineBaseUtil.printAndThrowErrorException(logger, this.getClass().getName(), methodName, ErrorCodeConstant.HEADLINE_PK_NOT_SELECTED);
+    }
+
+    List<Headline> res = headlineServiceImpl.constructHeadlinesAndReturn(reqVo);
+    responseDto.setData(res);
     return responseDto;
   }
 

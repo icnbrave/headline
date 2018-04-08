@@ -744,6 +744,76 @@ public class HeadlineCriteria {
             addCriterion("title not between", value1, value2, "title");
             return (Criteria) this;
         }
+
+        public Criteria andSeperatorIsNull() {
+            addCriterion("seperator is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorIsNotNull() {
+            addCriterion("seperator is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorEqualTo(String value) {
+            addCriterion("seperator =", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorNotEqualTo(String value) {
+            addCriterion("seperator <>", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorGreaterThan(String value) {
+            addCriterion("seperator >", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorGreaterThanOrEqualTo(String value) {
+            addCriterion("seperator >=", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorLessThan(String value) {
+            addCriterion("seperator <", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorLessThanOrEqualTo(String value) {
+            addCriterion("seperator <=", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorLike(String value) {
+            addCriterion("seperator like", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorNotLike(String value) {
+            addCriterion("seperator not like", value, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorIn(List<String> values) {
+            addCriterion("seperator in", values, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorNotIn(List<String> values) {
+            addCriterion("seperator not in", values, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorBetween(String value1, String value2) {
+            addCriterion("seperator between", value1, value2, "seperator");
+            return (Criteria) this;
+        }
+
+        public Criteria andSeperatorNotBetween(String value1, String value2) {
+            addCriterion("seperator not between", value1, value2, "seperator");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

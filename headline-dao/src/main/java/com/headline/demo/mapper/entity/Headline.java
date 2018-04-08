@@ -23,6 +23,8 @@ public class Headline {
 
     private String title;
 
+    private String seperator;
+
     public Integer getHeadlinePk() {
         return headlinePk;
     }
@@ -103,6 +105,14 @@ public class Headline {
         this.title = title;
     }
 
+    public String getSeperator() {
+        return seperator;
+    }
+
+    public void setSeperator(String seperator) {
+        this.seperator = seperator;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -124,7 +134,8 @@ public class Headline {
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
             && (this.getFlag() == null ? other.getFlag() == null : this.getFlag().equals(other.getFlag()))
             && (this.getAuthor() == null ? other.getAuthor() == null : this.getAuthor().equals(other.getAuthor()))
-            && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()));
+            && (this.getTitle() == null ? other.getTitle() == null : this.getTitle().equals(other.getTitle()))
+            && (this.getSeperator() == null ? other.getSeperator() == null : this.getSeperator().equals(other.getSeperator()));
     }
 
     @Override
@@ -141,6 +152,7 @@ public class Headline {
         result = prime * result + ((getFlag() == null) ? 0 : getFlag().hashCode());
         result = prime * result + ((getAuthor() == null) ? 0 : getAuthor().hashCode());
         result = prime * result + ((getTitle() == null) ? 0 : getTitle().hashCode());
+        result = prime * result + ((getSeperator() == null) ? 0 : getSeperator().hashCode());
         return result;
     }
 
@@ -160,6 +172,7 @@ public class Headline {
         sb.append(", flag=").append(flag);
         sb.append(", author=").append(author);
         sb.append(", title=").append(title);
+        sb.append(", seperator=").append(seperator);
         sb.append("]");
         return sb.toString();
     }
