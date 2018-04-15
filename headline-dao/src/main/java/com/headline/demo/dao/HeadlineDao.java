@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import com.eg.egsc.framework.dao.base.BaseDao;
 import com.eg.egsc.framework.paging.PageUtils;
 import com.headline.demo.dao.common.DarenDaoUtil;
+import com.headline.demo.dao.common.ErrorCodeDaoConstant;
+import com.headline.demo.dao.common.HeadlineBaseDaoUtil;
 import com.headline.demo.dao.common.HeadlineDaoConstant;
 import com.headline.demo.extmapper.HeadlineExtMapper;
 import com.headline.demo.mapper.HeadlineMapper;
@@ -121,6 +123,18 @@ public class HeadlineDao extends BaseDao<HeadlineMapper, HeadlineExtMapper, Head
     criteria.createCriteria().andDeleteFlagEqualTo(HeadlineDaoConstant.HEADLINE_DELETE_FLAG_FALSE)
         .andFlagEqualTo(HeadlineDaoConstant.HEADLINE_FLAG_INIT);
     return this.selectByExample(criteria);
+  }
+
+  @Override
+  public int solfDeleteByPk(Integer headlinePk) {
+    String methodName = "solfDeleteByPk";
+    Headline record = this.selectByPrimaryKey(headlinePk);
+    if (record == null) {
+      HeadlineBaseDaoUtil.printAndThrowErrorException(LOGGER, this.getClass().getName(), methodName,
+          ErrorCodeDaoConstant.HEADLINE_INVALID_PRIMARY_KEY);
+    }
+    record.setDeleteFlag(HeadlineDaoConstant.HEADLINE_DELETE_FLAG_TRUE);
+    return this.updateByPrimaryKey(record);
   }
 
 }

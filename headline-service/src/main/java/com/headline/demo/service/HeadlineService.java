@@ -36,5 +36,15 @@ public interface HeadlineService {
   List<Headline> splitHeadlinesAndReturnWithFirstPage(String sep, Integer pageSize);
   
   List<Headline> constructHeadlinesAndReturn(HeadlineContrVo contrVo);
+  
+  void batchDelete(List<Integer> headlinePks);
+  
+  void solfItemDelte(Integer headlinePk);
+
+  int insertIfDescNotExist(Headline headline);
+
+  List<Headline> getAllConstructedHeadlines();
+
+  List<Headline> getContructedHeadlinesWithSpecPks(List<Integer> headlinePks);
 
 }

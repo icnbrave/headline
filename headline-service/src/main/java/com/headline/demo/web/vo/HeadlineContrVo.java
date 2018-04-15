@@ -6,8 +6,6 @@ public class HeadlineContrVo {
 
   private List<Integer> headlinePks;
   
-  private String keywords;
-  
   private Integer number; // 有多少句话组成一个文案
 
   public List<Integer> getHeadlinePks() {
@@ -16,14 +14,6 @@ public class HeadlineContrVo {
 
   public void setHeadlinePks(List<Integer> headlinePks) {
     this.headlinePks = headlinePks;
-  }
-
-  public String getKeywords() {
-    return keywords;
-  }
-
-  public void setKeywords(String keywords) {
-    this.keywords = keywords;
   }
 
   public Integer getNumber() {

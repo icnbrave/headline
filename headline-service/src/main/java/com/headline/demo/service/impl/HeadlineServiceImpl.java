@@ -49,6 +49,18 @@ public class HeadlineServiceImpl implements HeadlineService {
   public int insert(Headline headline) {
     return headlineDao.getMapper().insert(headline);
   }
+  
+  @Override
+  @Transactional
+  public int insertIfDescNotExist(Headline headline) {
+    HeadlineCriteria criteria = new HeadlineCriteria();
+    criteria.createCriteria().andDescriptionEqualTo(headline.getDescription());
+    List<Headline> result = headlineDao.selectByExample(criteria);
+    if (CollectionUtils.isEmpty(result)) {
+      return headlineDao.getMapper().insert(headline);
+    }
+    return 0;
+  }
 
   @Override
   @Transactional(readOnly = true)
@@ -127,10 +139,14 @@ public class HeadlineServiceImpl implements HeadlineService {
       criteria.andSelectFlagEqualTo(headlineVo.getSelectFlag());
     }
     if (headlineVo.getAuthor() != null) {
-      criteria.andAuthorEqualTo(headlineVo.getAuthor());
+      criteria.andAuthorLike(headlineVo.getAuthor());
     }
     if (headlineVo.getTitle() != null) {
-      criteria.andTitleEqualTo(headlineVo.getTitle());
+      if (headlineVo.getTitle().startsWith("%") && headlineVo.getTitle().endsWith("%")) {
+        criteria.andTitleLike(headlineVo.getTitle());
+      } else {
+        criteria.andTitleLike("%" + headlineVo.getTitle() + "%");
+      }
     }
     if (headlineVo.getFlag() != null) {
       criteria.andFlagEqualTo(headlineVo.getFlag());
@@ -248,6 +264,9 @@ public class HeadlineServiceImpl implements HeadlineService {
     List<Headline> result = splitHeadlinesAndCreateNewOnes(sep, headlines);
 
     HeadlineBaseUtil.printEndLog(logger, this.getClass().getName(), methodName);
+    if (pageSize == null) {
+      pageSize = HeadlineConstant.HEADLINE_PAGESIZE_DEFAULT;
+    }
     Integer maxIndex = result.size() > pageSize ? pageSize : result.size();
     return result.subList(0, maxIndex);
   }
@@ -276,14 +295,7 @@ public class HeadlineServiceImpl implements HeadlineService {
           BeanUtils.copyProperties(tmp, record);
           newHeadlines.add(tmp);
         }
-      } else {
-        headlineDao.insertHeadine(record);
-
-        Headline tmp = new Headline();
-        BeanUtils.copyProperties(tmp, record);
-        newHeadlines.add(tmp);
       }
-
     }
 
     return newHeadlines;
@@ -372,5 +384,45 @@ public class HeadlineServiceImpl implements HeadlineService {
     headlineDao.insertHeadine(res);
     return res;
   }
+
+  @Override
+  @Transactional
+  public void batchDelete(List<Integer> headlinePks) {
+    headlinePks.forEach(pk -> {
+      headlineDao.solfDeleteByPk(pk);
+    });
+  }
+
+  @Override
+  @Transactional
+  public void solfItemDelte(Integer headlinePk) {
+    headlineDao.solfDeleteByPk(headlinePk);
+  }
+  
+  @Override
+  @Transactional
+  public List<Headline> getAllConstructedHeadlines() {
+    HeadlineCriteria criteria = new HeadlineCriteria();
+    criteria.createCriteria().andFlagEqualTo(HeadlineConstant.HEADLINE_FLAG_CONSTRUCTED)
+        .andDeleteFlagEqualTo(HeadlineConstant.HEADLINE_DELETE_FLAG_FALSE);
+    return headlineDao.selectByExample(criteria);
+  }
+  
+  @Override
+  @Transactional
+  public List<Headline> getContructedHeadlinesWithSpecPks(List<Integer> headlinePks){
+    List<Headline> headlines = new ArrayList<>();
+    if (headlinePks == null) {
+      return headlines;
+    }
+    headlinePks.forEach(headlinePk -> {
+      Headline record = headlineDao.selectByPrimaryKey(headlinePk);
+      if (record != null) {
+        headlines.add(record);
+      }
+    });
+    return headlines;
+  }
+  
 
 }

@@ -29,4 +29,6 @@ public interface IHeadline {
   public int updateByPrimaryKey(Headline record);
   
   public List<Headline> getAllOriginHeadlines();
+  
+  public int solfDeleteByPk(Integer headlinePk);
 }
