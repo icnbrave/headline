@@ -8,7 +8,6 @@
   <modules>
   	<module>headline-dao</module>
   	<module>headline-service</module>
-  	<module>headline-dao2</module>
   </modules>
   
   <parent>
