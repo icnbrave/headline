@@ -1,15 +1,16 @@
-CREATE TABLE dr.headline (
-	headline_pk	INTEGER 	NOT NULL DEFAULT NEXTVAL('hl.seq_baseinfo'),
-	price	NUMERIC(5,2)	NULL,
-	name		VARCHAR(64)	NOT NULL,
-	descript		VARCHAR(1024)	NULL,
-	select_flag	SMALLINT		NOT NULL 	DEFAULT 1,
-	delete_flag	SMALLINT NOT NULL	DEFAULT 1,
-	create_time			TIMESTAMP		NOT NULL,
-	update_time			TIMESTAMP		NOT NULL,
-	create_user			VARCHAR(32)		NULL,
-	update_user			VARCHAR(32)		NULL,
-	author				VARCHAR(32)		NULL,
-	title				VARCHAR(64)		NULL,
-	constraint pk_headline_pk primary key(headline_pk)
-);
+CREATE TABLE `daren`.`healdine` (
+  `headline_pk` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(64) NULL,
+  `title` VARCHAR(128) NULL,
+  `description` VARCHAR(1024) NULL,
+  `delete_flag` SMALLINT NULL DEFAULT 0,
+  `select_flag` SMALLINT NULL DEFAULT 0,
+  `flag` SMALLINT NULL DEFAULT 0,
+  `author` VARCHAR(64) NULL,
+  `seperator` VARCHAR(8) NULL,
+  `create_time` TIMESTAMP NULL,
+  `update_time` TIMESTAMP NULL,
+  PRIMARY KEY (`headline_pk`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
