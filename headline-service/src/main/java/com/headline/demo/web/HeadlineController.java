@@ -110,8 +110,8 @@ public class HeadlineController extends HeadlineBaseWebController {
   }
 
   @ApiOperation("切割头条，并返回切割结果")
-  @RequestMapping(value = "/split", method = RequestMethod.POST)
-  public ResponseDto splitHeadlinesAndReturn(String seporator, Integer pageSize) {
+  @RequestMapping(value = "/split", method = RequestMethod.GET)
+  public ResponseDto splitHeadlinesAndReturn(@RequestParam("sep") String seporator, @RequestParam("ps") Integer pageSize) {
     if (seporator == null) {
       seporator = HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL;
     }

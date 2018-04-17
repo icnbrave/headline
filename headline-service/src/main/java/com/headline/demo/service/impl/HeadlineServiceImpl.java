@@ -49,7 +49,7 @@ public class HeadlineServiceImpl implements HeadlineService {
   public int insert(Headline headline) {
     return headlineDao.getMapper().insert(headline);
   }
-  
+
   @Override
   @Transactional
   public int insertIfDescNotExist(Headline headline) {
@@ -107,6 +107,7 @@ public class HeadlineServiceImpl implements HeadlineService {
     }
     HeadlineCriteria criteria = new HeadlineCriteria();
     HeadlineCriteria.Criteria crr = criteria.createCriteria();
+
     convertHeadlineCondition2Criteria(crr, searchVo.getCondition());
 
     List<Headline> headlines = headlineDao.queryOnePageDataByCondition(searchVo.getCurrentPage(),
@@ -318,8 +319,8 @@ public class HeadlineServiceImpl implements HeadlineService {
       if (CollectionUtils.isEmpty(randomPks)) {
         break;
       }
-      
-      Headline ret = constructOneHeadlineWithSpecPks(randomPks);
+
+      Headline ret = constructOneHeadlineWithSpecPks(randomPks, contrVo.getSep());
       if (ret != null) {
         headlinesContructed.add(ret);
       }
@@ -347,32 +348,40 @@ public class HeadlineServiceImpl implements HeadlineService {
     }
     return randomPks;
   }
-  
-  private Headline constructOneHeadlineWithSpecPks(List<Integer> randomPks) {
+
+  private Headline constructOneHeadlineWithSpecPks(List<Integer> randomPks, String sep) {
     if (randomPks == null) {
       return null;
     }
-    
+    if (sep == null) {
+      sep = HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL;
+    }
+
     String desc = "";
-    for(Integer pk : randomPks) {
+    int idx = 0;
+    for (Integer pk : randomPks) {
+      idx++;
       Headline result = headlineDao.selectByPrimaryKey(pk);
       if (result == null) {
         continue;
       }
       desc = desc.concat(result.getDescription());
-      if (!desc.endsWith(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL)) {
+      if (!desc.endsWith(sep) && idx < randomPks.size()) {
+        desc = desc.concat(sep);
+      } else if (idx == randomPks.size()
+          && !desc.endsWith(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL)) {
         desc = desc.concat(HeadlineConstant.HEADLINE_DESCRIPTION_SPLIT_DEFAULT_SYMBOL);
       }
-      
+
       result.setSelectFlag(HeadlineConstant.HEADLINE_SELECT_FLAG_SELECTED);
       result.setUpdateTime(Calendar.getInstance().getTime());
       headlineDao.updateByPrimaryKey(result);
     }
-    
+
     if (desc.length() == 0) {
       return null;
     }
-    
+
     Headline res = new Headline();
     res.setTitle(HeadlineConstant.HEADLINE_MOCK_TITLE);
     res.setAuthor(HeadlineConstant.HEADLINE_MOCK_AUTHOR);
@@ -398,7 +407,7 @@ public class HeadlineServiceImpl implements HeadlineService {
   public void solfItemDelte(Integer headlinePk) {
     headlineDao.solfDeleteByPk(headlinePk);
   }
-  
+
   @Override
   @Transactional
   public List<Headline> getAllConstructedHeadlines() {
@@ -407,10 +416,10 @@ public class HeadlineServiceImpl implements HeadlineService {
         .andDeleteFlagEqualTo(HeadlineConstant.HEADLINE_DELETE_FLAG_FALSE);
     return headlineDao.selectByExample(criteria);
   }
-  
+
   @Override
   @Transactional
-  public List<Headline> getContructedHeadlinesWithSpecPks(List<Integer> headlinePks){
+  public List<Headline> getContructedHeadlinesWithSpecPks(List<Integer> headlinePks) {
     List<Headline> headlines = new ArrayList<>();
     if (headlinePks == null) {
       return headlines;
@@ -423,6 +432,6 @@ public class HeadlineServiceImpl implements HeadlineService {
     });
     return headlines;
   }
-  
+
 
 }
