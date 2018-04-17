@@ -106,9 +106,8 @@ public class HeadlineServiceImpl implements HeadlineService {
           ErrorCodeConstant.HEADLINE_SERVICE_PARAM_BLANK);
     }
     HeadlineCriteria criteria = new HeadlineCriteria();
-    HeadlineCriteria.Criteria crr = criteria.createCriteria();
 
-    convertHeadlineCondition2Criteria(crr, searchVo.getCondition());
+    convertHeadlineCondition2Criteria(criteria, searchVo.getCondition());
 
     List<Headline> headlines = headlineDao.queryOnePageDataByCondition(searchVo.getCurrentPage(),
         searchVo.getPageSize(), criteria);
@@ -121,48 +120,92 @@ public class HeadlineServiceImpl implements HeadlineService {
     pageVo.setHeadlines(headlines);
     return pageVo;
   }
+  
 
-  private void convertHeadlineCondition2Criteria(Criteria criteria, HeadlineVo headlineVo) {
+  private void convertHeadlineCondition2Criteria(HeadlineCriteria headlineCriteria, HeadlineVo headlineVo) {
     if (headlineVo == null) {
       return;
     }
 
-    if (headlineVo.getHeadlinePk() != null) {
-      criteria.andHeadlinePkEqualTo(headlineVo.getHeadlinePk());
-    }
-    if (headlineVo.getDeleteFlag() != null) {
-      criteria.andDeleteFlagEqualTo(headlineVo.getDeleteFlag());
-    }
-    if (headlineVo.getName() != null) {
-      criteria.andNameEqualTo(headlineVo.getName());
-    }
-    if (headlineVo.getSelectFlag() != null) {
-      criteria.andSelectFlagEqualTo(headlineVo.getSelectFlag());
-    }
-    if (headlineVo.getAuthor() != null) {
-      criteria.andAuthorLike(headlineVo.getAuthor());
-    }
-    if (headlineVo.getTitle() != null) {
-      if (headlineVo.getTitle().startsWith("%") && headlineVo.getTitle().endsWith("%")) {
-        criteria.andTitleLike(headlineVo.getTitle());
-      } else {
-        criteria.andTitleLike("%" + headlineVo.getTitle() + "%");
+    if (StringUtils.isEmpty(headlineVo.getKeywords())) {
+      Criteria criteria = headlineCriteria.createCriteria();
+      if (headlineVo.getHeadlinePk() != null) {
+        criteria.andHeadlinePkEqualTo(headlineVo.getHeadlinePk());
       }
-    }
-    if (headlineVo.getFlag() != null) {
-      criteria.andFlagEqualTo(headlineVo.getFlag());
-    }
-    if (headlineVo.getSeperator() != null) {
-      criteria.andSeperatorEqualTo(headlineVo.getSeperator());
-    }
-    if (headlineVo.getDescription() != null) {
-      String[] tokens = headlineVo.getDescription().trim().split(" ");
-      for (String keyword : tokens) {
-        criteria.andDescriptionLike("%" + keyword + "%");
+      if (headlineVo.getDeleteFlag() != null) {
+        criteria.andDeleteFlagEqualTo(headlineVo.getDeleteFlag());
       }
+      if (headlineVo.getName() != null) {
+        criteria.andNameEqualTo(headlineVo.getName());
+      }
+      if (headlineVo.getSelectFlag() != null) {
+        criteria.andSelectFlagEqualTo(headlineVo.getSelectFlag());
+      }
+      if (headlineVo.getAuthor() != null) {
+        criteria.andAuthorLike(headlineVo.getAuthor());
+      }
+      if (headlineVo.getFlag() != null) {
+        criteria.andFlagEqualTo(headlineVo.getFlag());
+      }
+      if (headlineVo.getSeperator() != null) {
+        criteria.andSeperatorEqualTo(headlineVo.getSeperator());
+      }
+      return;
+    } 
+    
+    String[] keywords = headlineVo.getKeywords().trim().split(HeadlineConstant.HEADLINE_QUERY_KEYWORDS_SEP);
+    for (int i = 0; i < keywords.length; i++) {
+      Criteria criteria1 = headlineCriteria.or(); 
+      if (headlineVo.getHeadlinePk() != null) {
+        criteria1.andHeadlinePkEqualTo(headlineVo.getHeadlinePk());
+      }
+      if (headlineVo.getDeleteFlag() != null) {
+        criteria1.andDeleteFlagEqualTo(headlineVo.getDeleteFlag());
+      }
+      if (headlineVo.getName() != null) {
+        criteria1.andNameEqualTo(headlineVo.getName());
+      }
+      if (headlineVo.getSelectFlag() != null) {
+        criteria1.andSelectFlagEqualTo(headlineVo.getSelectFlag());
+      }
+      if (headlineVo.getAuthor() != null) {
+        criteria1.andAuthorLike(headlineVo.getAuthor());
+      }
+      if (headlineVo.getFlag() != null) {
+        criteria1.andFlagEqualTo(headlineVo.getFlag());
+      }
+      if (headlineVo.getSeperator() != null) {
+        criteria1.andSeperatorEqualTo(headlineVo.getSeperator());
+      }
+      criteria1.andTitleLike("%" + keywords[i] + "%");
+      
+      Criteria criteria2 = headlineCriteria.or(); 
+      if (headlineVo.getHeadlinePk() != null) {
+        criteria2.andHeadlinePkEqualTo(headlineVo.getHeadlinePk());
+      }
+      if (headlineVo.getDeleteFlag() != null) {
+        criteria2.andDeleteFlagEqualTo(headlineVo.getDeleteFlag());
+      }
+      if (headlineVo.getName() != null) {
+        criteria2.andNameEqualTo(headlineVo.getName());
+      }
+      if (headlineVo.getSelectFlag() != null) {
+        criteria2.andSelectFlagEqualTo(headlineVo.getSelectFlag());
+      }
+      if (headlineVo.getAuthor() != null) {
+        criteria2.andAuthorLike(headlineVo.getAuthor());
+      }
+      if (headlineVo.getFlag() != null) {
+        criteria2.andFlagEqualTo(headlineVo.getFlag());
+      }
+      if (headlineVo.getSeperator() != null) {
+        criteria2.andSeperatorEqualTo(headlineVo.getSeperator());
+      }
+      criteria2.andDescriptionLike("%" + keywords[i] + "%");
     }
+    
   }
-
+  
   @Override
   @Transactional
   public List<Headline> uploadHeadlineFileAndReturnSplitedHeadlines(MultipartFile file) {

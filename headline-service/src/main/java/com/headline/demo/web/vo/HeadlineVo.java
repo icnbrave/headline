@@ -6,15 +6,13 @@ public class HeadlineVo {
 
   private String name;
 
-  private String description;
+  private String keywords; // Query for title or description
 
   private Short deleteFlag;
 
   private Short selectFlag;
   
   private Short flag;
-  
-  private String title;
   
   private String author;
   
@@ -34,14 +32,6 @@ public class HeadlineVo {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   public Short getDeleteFlag() {
@@ -68,14 +58,6 @@ public class HeadlineVo {
     this.flag = flag;
   }
 
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
   public String getAuthor() {
     return author;
   }
@@ -90,6 +72,14 @@ public class HeadlineVo {
 
   public void setSeperator(String seperator) {
     this.seperator = seperator;
+  }
+
+  public String getKeywords() {
+    return keywords;
+  }
+
+  public void setKeywords(String keywords) {
+    this.keywords = keywords;
   }
   
 }
